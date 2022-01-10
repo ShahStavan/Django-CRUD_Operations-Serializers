@@ -193,7 +193,9 @@
                 })
             }).then(function(response){
                 buildlist();
+                document.getElementbyId("form").reset();
             })
+            
             //console.log("Form submitted");
         })
         buildlist();
