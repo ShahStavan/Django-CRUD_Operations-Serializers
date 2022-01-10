@@ -120,10 +120,29 @@
 			-- Remove extra data on re-render
 			-- CSRF Token
 		*/
+        function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+    }
+    return cookieValue;
+}
+        const csrftoken = getCookie('csrftoken');
 
         // buildlist() function is responsible for calling the data and outputting the list 
         function buildlist(){
+            
             var list_wrapper = document.getElementById("list-wrapper");
+            list_wrapper.innerHTML = "";
+
             var url = "http://127.0.0.1:8000/api/task-list/"
 
             fetch(url)
@@ -132,7 +151,7 @@
             })
             .then(function(data){
                 console.log("Data: ",data);
-                console.log("Data name: ",data[0].name);
+                //console.log("Data name: ",data[0].name);
                 var list = data;
                 for(var i in list)
                 {
@@ -159,7 +178,24 @@
 
         }
         var form = document.getElementById("form-wrapper");
-        //form.addEventListener
+        form.addEventListener("submit",function(e){
+            e.preventDefault();
+            var url = "http://127.0.0.1:8000/api/create/"
+            var title = document.getElementById("title").value;
+            fetch(url,{
+                method:"POST",
+                headers:{
+                    "Content-Type":"application/json",
+                    "X-CSRFToken":csrftoken
+                },
+                body:JSON.stringify({
+                    "name":title
+                })
+            }).then(function(response){
+                buildlist();
+            })
+            //console.log("Form submitted");
+        })
         buildlist();
 
     </script>
