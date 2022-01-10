@@ -169,7 +169,17 @@
 							</div>
 						</div>
 					`
-					list_wrapper.innerHTML += item
+					list_wrapper.innerHTML += item;
+
+                    
+                }
+                for(var i in list)
+                {
+                    var editBtn = document.getElementsByClassName("edit")[i];
+                    editBtn.addEventListener('click',function(){
+                        editItem();
+                    })
+
                 }
             })
             .catch(function(error){
@@ -195,11 +205,11 @@
                 buildlist();
                 document.getElementbyId("form").reset();
             })
-            
-            //console.log("Form submitted");
         })
         buildlist();
-
+        function editItem(){
+            console.log("Edit Item");
+        }
     </script>
 </body>
 </html>
