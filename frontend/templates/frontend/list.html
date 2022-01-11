@@ -136,6 +136,7 @@
     return cookieValue;
 }
         const csrftoken = getCookie('csrftoken');
+        var activeItem = null;
 
         // buildlist() function is responsible for calling the data and outputting the list 
         function buildlist(){
@@ -155,11 +156,21 @@
                 var list = data;
                 for(var i in list)
                 {
+                    try{
+						document.getElementById(`data-row-${i}`).remove()
+					}catch(err){
+
+					}
                     var data = list[i].name;
+                    var title = `<span class="title">${list[i].name}</span>`
+					if (list[i].completed == true){
+						title = `<strike class="title">${list[i].name}</strike>`
+					}
+
                     var item = `
 						<div id="data-row-${i}" class="task-wrapper flex-wrapper">
 							<div style="flex:7">
-								${data}
+                                ${title}
 							</div>
 							<div style="flex:1">
 								<button class="btn btn-sm btn-outline-info edit">Edit </button>
@@ -176,9 +187,25 @@
                 for(var i in list)
                 {
                     var editBtn = document.getElementsByClassName("edit")[i];
-                    editBtn.addEventListener('click',function(){
-                        editItem();
-                    })
+                    var deleteBtn = document.getElementsByClassName("delete")[i];
+                    var title = document.getElementsByClassName('title')[i]
+                    editBtn.addEventListener('click',(function(item){
+                        return function(){
+                            editItem(item);
+                        }
+                    })(list[i]));
+                    
+                    deleteBtn.addEventListener('click',(function(item){
+                        return function(){
+                            deleteItem(item);
+                        }
+                    })(list[i]));
+                    
+                    title.addEventListener('click',(function(item){
+                        return function(){
+                            StrikeUnstrike(item);
+                        }
+                    })(list[i]));
 
                 }
             })
@@ -191,6 +218,12 @@
         form.addEventListener("submit",function(e){
             e.preventDefault();
             var url = "http://127.0.0.1:8000/api/create/"
+
+            if(activeItem != null){
+                var url = `http://127.0.0.1:8000/api/update/${activeItem.id}/`
+                activeItem = null
+            }
+
             var title = document.getElementById("title").value;
             fetch(url,{
                 method:"POST",
@@ -203,12 +236,45 @@
                 })
             }).then(function(response){
                 buildlist();
-                document.getElementbyId("form").reset();
+                document.getElementById("form").reset();
             })
         })
         buildlist();
-        function editItem(){
-            console.log("Edit Item");
+        function editItem(item){
+
+            console.log("Item Clicked:",item);
+            activeItem = item;
+            // This will set the item on which we have clicked to activeItem
+            document.getElementById("title").value = activeItem.name;
+        }
+
+        function deleteItem(item){
+            console.log("Delete Item Clicked");
+            fetch(`http://127.0.0.1:8000/api/delete/${item.id}/`,{
+                method:"DELETE",
+                headers:{
+                    "Content-Type":"application/json",
+                    "X-CSRFToken":csrftoken
+                }
+            }).then(function(response){
+                buildlist();
+            })
+        }
+        function StrikeUnstrike(item)
+        {
+            console.log("Strike Unstrike Clicked");
+            item.completed = !item.completed;
+
+            fetch(`http://127.0.0.1:8000/api/update/${item.id}/`,{
+                method:"POST",
+                headers:{
+                    "Content-Type":"application/json",
+                    "X-CSRFToken":csrftoken
+                },
+                body:JSON.stringify({'name':item.name,'completed':item.completed})
+            }).then(function(response){
+                buildlist();
+            })
         }
     </script>
 </body>
