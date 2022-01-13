@@ -1,0 +1,27 @@
+{% extends "articles/base.html" %}
+{% block title %}Articles for {{ year }}{% endblock %}
+{% block content %}
+{% if articles %}
+<div class="container">
+    <h1>Articles<h1>
+    <div class="flex-wrapper">
+        {% for article in articles %}
+        <div class="article-wrapper"> 
+            <div class="article-title">
+                <p>{{ article.title }}</p>
+            </div>
+            <div class="article-body">
+                <p>{{ article.body }}</p>
+            </div>
+            <div class="article-footer">
+                <p>Published {{ article.pub_date|date:"F j Y" }}</p>
+            </div>
+            
+        </div>  
+        {% endfor %}
+    </div>
+</div>
+{% else %}
+<p>No articles for {{ year }}</p>
+{% endif %}
+{% endblock %}
