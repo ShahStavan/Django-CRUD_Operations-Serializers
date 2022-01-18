@@ -77,6 +77,13 @@
 </head>
 <body>
     <div class="container">
+        {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-success">
+                {{ messages }}
+            </div>
+        {% endfor %}
+        {% endif %}
         <h1>WELCOME TO TO-DO LIST</h1>
 
 
